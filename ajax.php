@@ -97,5 +97,18 @@ if($action == "delete_payment"){
 		echo $save;
 }
 
+if($action == "save_notification"){
+    $save = $crud->save_notification();
+    if($save)
+        echo $save;
+}
+
+//delete_notifications
+if($action == "delete_notification"){
+	$save = $crud->delete_notification();
+	if($save)
+		echo $save;
+}
+
 ob_end_flush();
 ?>

@@ -349,4 +349,27 @@ Class Action {
 			return 1;
 		}
 	}
+
+	public function save_notification(){
+		extract($_POST);
+		if(empty($id)){
+			$query = "INSERT INTO notifications (title, message) VALUES ('$title', '$message')";
+		} else {
+			$query = "UPDATE notifications SET title = '$title', message = '$message' WHERE id = $id";
+		}
+		$save = $this->db->query($query);
+		if($save){
+			return 1; // Thành công
+		} else {
+			return "Lỗi database: " . $this->db->error;
+		}
+	}
+
+	function delete_notification(){
+		extract($_POST);
+		$delete = $this->db->query("DELETE FROM notifications where id = ".$id);
+		if($delete){
+			return 1;
+		}
+	}
 }

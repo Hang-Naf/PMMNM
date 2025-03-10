@@ -19,6 +19,8 @@
 				<a href="index.php?page=reports" class="nav-item nav-reports"><span class='icon-field'><i class="fa fa-list-alt "></i></span> Reports</a>
 				<?php if($_SESSION['login_type'] == 1): ?>
 				<a href="index.php?page=users" class="nav-item nav-users"><span class='icon-field'><i class="fa fa-users "></i></span> Users</a>
+				<a href="index.php?page=maintenance" class="nav-item nav-maintenance"><span class='icon-field'><i class="fa fa-tools "></i></span> Maintenance</a>
+				<a href="index.php?page=contact" class="nav-item nav-contact"><span class='icon-field'><i class="fa fa-envelope "></i></span> Contact</a>
 				<!-- <a href="index.php?page=site_settings" class="nav-item nav-site_settings"><span class='icon-field'><i class="fa fa-cogs text-danger"></i></span> System Settings</a> -->
 			<?php endif; ?>
 		</div>
