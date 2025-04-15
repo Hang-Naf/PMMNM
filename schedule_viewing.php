@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đặt lịch hẹn xem nhà</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
@@ -99,31 +98,31 @@
     </div>
 
     <script>
-$("#booking-form").submit(function (e) {
-    e.preventDefault();
-    
-    $.ajax({
-        url: 'save_schedules.php',
-        type: 'POST',
-        data: $(this).serialize(),
-        dataType: 'json',
-        success: function(response) {
-            if (response.status === "success") {
-                $("#success-message").removeClass("d-none").text(response.message);
-                setTimeout(() => {
-                    $("#success-message").addClass("d-none");
-                    $("#booking-form")[0].reset();
-                }, 4000);
-            } else {
-                alert("❌ " + response.message);
+$(document).ready(function () {
+    $('#booking-form').submit(function (e) {
+        e.preventDefault(); // chặn reload
+
+        $.ajax({
+            type: 'POST',
+            url: 'save_schedules.php',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (res) {
+                if (res.status === 'success') {
+                    alert("🎉 " + res.message);
+                    window.location.href = 'index.php?page=manage_appointments';
+                } else {
+                    alert("❌ " + res.message);
+                }
+            },
+            error: function () {
+                alert("❌ Gửi dữ liệu thất bại!");
             }
-        },
-        error: function(xhr, status, error) {
-            alert("❌ Lỗi máy chủ: " + xhr.responseText);
-        }
+        });
     });
 });
 </script>
+
 
 </body>
 </html>

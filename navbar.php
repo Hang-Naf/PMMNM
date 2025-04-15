@@ -1,60 +1,14 @@
 
-<head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
-</head>
 
 <style>
-	.collapse a{
-		text-indent:10px;
+	.collapse a {
+		text-indent: 10px;
 	}
-	nav#sidebar{
+
+	nav#sidebar {
 		/*background: url(assets/uploads/<?php echo $_SESSION['system']['cover_img'] ?>) !important*/
 	}
-
-	#sidebar {
-    transition: all 0.3s ease-in-out;
-    width: 250px;
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    background: #343a40;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-}
-#sidebar.collapsed {
-    margin-left: -250px;
-}
-#toggle-sidebar {
-    position: fixed;
-    left: 0px;
-    top: 5px;
-    background:  #007bff;
-    color: black;
-    border: none;
-    padding: 8px 10px;
-    /* cursor: pointer; */
-    z-index: 1050;  /* Hiển thị trên tất cả */
-}
-#toggle-sidebar:hover {
-    background: #0056b3;
-}
-@media print {
-    #sidebar, #toggle-sidebar {
-        display: none !important;
-    }
-}
-
-
 </style>
-
-
-<!-- Nút Toggle -->
-<button id="toggle-sidebar" class="btn btn-primary m-2">
-    <i class="fa fa-bars"></i>
-</button>
 
 
 <nav id="sidebar" class='mx-lt-5 bg-dark' >
@@ -95,18 +49,6 @@
 		console.log($(this).attr('href'))
 		$($(this).attr('href')).collapse()
 	})
-	$('.nav-<?php echo isset($_GET['page']) ? $_GET['page'] : '' ?>').addClass('active')
-
-	$(document).ready(function(){
-        // Làm nổi bật menu tương ứng với trang hiện tại
-        $('.nav-<?php echo isset($_GET['page']) ? $_GET['page'] : '' ?>').addClass('active');
-    });
-
-	$(document).ready(function(){
-    	$('#toggle-sidebar').click(function(){
-        	$('#sidebar').toggleClass('collapsed');
-    	});
-	});
 
 </script>
 

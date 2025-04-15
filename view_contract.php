@@ -1,6 +1,8 @@
 <?php
 include 'db_connect.php';
-
+include 'header.php';     
+include 'topbar.php';
+include 'navbar.php';
 // Kiểm tra nếu 'id' tồn tại và hợp lệ
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("ID không hợp lệ.");
@@ -19,104 +21,17 @@ if (!$contract) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Hợp Đồng Thuê Nhà</title>
-    <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-
-  .contract-wrapper {
-    width: 21cm;
-    margin: auto;
-    padding: 2cm;
-  }
-
-  h2, h3 {
-    text-align: center;
-  }
-
-  .section-title {
-    font-weight: bold;
-    margin-top: 20px;
-  }
-
-  .contract-content p {
-    line-height: 1.6;
-  }
-
-  .signature {
-    text-align: center;
-    margin-top: 40px;
-    display: flex;
-    justify-content: space-around;
-  }
-
-  .signature input {
-    text-align: center;
-    width: 200px;
-    margin-top: 5px;
-  }
-
-  .name-display {
-    font-weight: bold;
-    margin-top: 5px;
-    display: none;
-  }
-
-  #print-btn {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
-  }
-
-  @media print {
-    #sidebar, .navbar, .topbar, #print-btn, .btn {
-      display: none !important;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .contract-wrapper {
-      width: 21cm !important;
-      margin: auto !important;
-      padding: 0 !important;
-    }
-
-    .input-signature {
-      display: none !important;
-    }
-
-    .name-display {
-      display: block !important;
-    }
-  }
-</style>
-
-
-</head>
-<body>
-<div class="contract-wrapper">
-    <h2>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h2>
-    <h3>Độc lập - Tự do - Hạnh phúc</h3>
-    <p>………., ngày .... tháng .... năm ....</p>
-    <h2>HỢP ĐỒNG THUÊ NHÀ</h2>
+<div class = "container-fluid px-4">
+    <h2 class="text-center fw-bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h2>
+    <h3 class="text-center fst-italic">Độc lập - Tự do - Hạnh phúc</h3>
+    <p class="text-center">………., ngày .... tháng .... năm ....</p>
+    <h2 class="text-center fw-bold">HỢP ĐỒNG THUÊ NHÀ</h2>
     <p>- Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;</p>
     <p>- Căn cứ vào Luật Thương mại số 36/2005/QH11 ngày 14 tháng 06 năm 2005;</p>
     <p>- Căn cứ vào nhu cầu và sự thỏa thuận của các bên tham gia Hợp đồng;</p>
     <p>Hôm nay, ngày.....tháng......năm........., các Bên gồm:</p>
 
-    <!-- <div class="contract-content"> -->
+    <div class="ps-4">
         <p><strong>BÊN CHO THUÊ (Bên A):</strong></p>
         <p><strong>Ông: </strong> <?php echo htmlspecialchars($contract['lessor_name']); ?></p>
         <p><strong>CMND số: </strong> <?php echo htmlspecialchars($contract['lessor_id_number']); ?></p>
@@ -171,46 +86,12 @@ if (!$contract) {
         <p>Hợp đồng có hiệu lực từ ngày ký và được lập thành 02 bản có giá trị như nhau.</p>
 
         <div class="signature">
-            <!-- <p>BÊN CHO THUÊ</p>
+            <p>BÊN CHO THUÊ</p>
             <p>(Ký và ghi rõ họ tên)</p>
             <p>BÊN THUÊ</p>
-            <p>(Ký và ghi rõ họ tên)</p> -->
-            <div>
-                <p><strong>BÊN CHO THUÊ</strong></p>
-                <input class="input-signature" id="lessor-sign" placeholder="(Ký và ghi rõ họ tên)">
-                <p class="name-display" id="lessor-name" style="display: none;"></p>
-            </div>
-            <div>
-                <p><strong>BÊN THUÊ</strong></p>
-                <input class="input-signature" id="lessee-sign" placeholder="(Ký và ghi rõ họ tên)">
-                <p class="name-display" id="lessee-name" style="display: none;"></p>
-            </div>
+            <p>(Ký và ghi rõ họ tên)</p>
         </div>
-    <!-- </div> -->
+    </div>
 </div>
-<script>
-    // Khi người dùng gõ tên, hiển thị ra dòng chữ tương ứng
-    const lessorInput = document.getElementById('lessor-sign');
-    const lesseeInput = document.getElementById('lessee-sign');
-    const lessorDisplay = document.getElementById('lessor-name');
-    const lesseeDisplay = document.getElementById('lessee-name');
-
-    function updateSignatures() {
-        lessorDisplay.textContent = lessorInput.value;
-        lesseeDisplay.textContent = lesseeInput.value;
-    }
-
-    lessorInput.addEventListener('input', updateSignatures);
-    lesseeInput.addEventListener('input', updateSignatures);
-
-    // Cập nhật nội dung ngay trước khi in
-    window.onbeforeprint = () => {
-        updateSignatures();
-        lessorDisplay.style.display = 'block';
-        lesseeDisplay.style.display = 'block';
-    };
-</script>
-<button id="print-btn" class="btn btn-primary" onclick="window.print()">🖨️ In Hợp Đồng</button>
-
 </body>
 </html>

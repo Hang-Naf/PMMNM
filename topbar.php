@@ -7,12 +7,6 @@
     border-radius: 50% 50%;
     color: #000000b3;
 }
-@media print {
-    .navbar {
-        display: none !important;
-    }
-}
-
 </style>
 
 <nav class="navbar navbar-light fixed-top bg-primary" style="padding:0;min-height: 3.5rem">

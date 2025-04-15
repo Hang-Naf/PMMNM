@@ -3,28 +3,7 @@
 $action = $_GET['action'];
 include 'admin_class.php';
 include 'db_connect.php';
-
 $crud = new Action();
-$action = $_GET['action'] ?? ''; // thêm
-if ($action == 'confirm_schedule' || $action == 'cancel_schedule') {
-    $id = $_POST['id'] ?? 0;
-    if ($id <= 0) {
-        echo 0;
-        exit;
-    }
-
-    if ($action == 'confirm_schedule') {
-        $stmt = $conn->prepare("UPDATE schedules SET status = 1 WHERE id = ?");
-    } else {
-        $stmt = $conn->prepare("DELETE FROM schedules WHERE id = ?");
-    }
-
-    $stmt->bind_param("i", $id);
-    echo $stmt->execute() ? 1 : 0;
-    $stmt->close();
-    exit;
-}
-
 if($action == 'login'){
 	$login = $crud->login();
 	if($login)
@@ -119,29 +98,53 @@ if($action == "delete_payment"){
 		echo $save;
 }
 
-
-if ($action == 'view_schedule') {
+if($action == "confirm_schedule"){
     $id = $_POST['id'];
-    $res = $conn->query("SELECT * FROM schedules WHERE id = $id");
-    $row = $res->fetch_assoc();
-
-
-
-    $datetime = strtotime($row['schedule_time']);
-    $date = date("d-m-Y", $datetime);
-    $time = date("H:i", $datetime);
-
-    ?>
-    <p><strong>Họ và tên:</strong> <?php echo $row['tenant_id'] ?? 'Chưa nhập'; ?></p>
-    <p><strong>Số điện thoại:</strong> <?php echo $row['phone'] ?? 'Chưa nhập'; ?></p>
-    <p><strong>Ngày xem nhà:</strong> <?php echo $date; ?></p>
-    <p><strong>Giờ xem nhà:</strong> <?php echo $time; ?></p>
-    <p><strong>Địa điểm:</strong> <?php echo $row['location']; ?></p>
-    <p><strong>Loại nhà:</strong> <?php echo $row['house_id'] ?? 'Chưa chọn'; ?></p>
-    <p><strong>Khoảng giá:</strong> <?php echo $row['price_range']; ?></p>
-    <p><strong>Ghi chú:</strong> <?php echo $row['note'] ?? 'Không có'; ?></p>
-    <?php
-    exit;
+    $update = $conn->query("UPDATE schedules SET status = 1 WHERE id = $id");
+    if($update){
+        echo 1;
+		exit;
+    }
 }
+
+if($action == "cancel_schedule"){
+    $id = $_POST['id'];
+    $delete = $conn->query("DELETE FROM schedules WHERE id = $id");
+    if($delete){
+        echo 1;
+		exit;
+    }
+}
+
+// 👁️ XEM CHI TIẾT LỊCH HẸN
+if ($action == 'view_schedule') {
+	$res = $conn->query("SELECT * FROM schedules WHERE id = $id");
+	if ($res && $res->num_rows > 0) {
+		$row = $res->fetch_assoc();
+
+		$datetime = strtotime($row['schedule_time']);
+		$date = date("d-m-Y", $datetime);
+		$time = date("H:i", $datetime);
+
+		?>
+		<p><strong>ID lịch hẹn:</strong> <?php echo $row['id']; ?></p>
+		<p><strong>Người thuê (tenant_id):</strong> <?php echo $row['tenant_id']; ?></p>
+		<p><strong>Nhà cần xem (house_id):</strong> <?php echo $row['house_id']; ?></p>
+		<p><strong>Ngày xem nhà:</strong> <?php echo $date; ?></p>
+		<p><strong>Giờ xem nhà:</strong> <?php echo $time; ?></p>
+		<p><strong>Địa điểm:</strong> <?php echo $row['location']; ?></p>
+		<p><strong>Khoảng giá:</strong> <?php echo $row['price_range']; ?></p>
+		<p><strong>Loại nhà:</strong> <?php echo $row['house_type'] ?: 'Chưa chọn'; ?></p>
+		<p><strong>Số điện thoại:</strong> <?php echo $row['phone'] ?: 'Chưa nhập'; ?></p>
+		<p><strong>Ghi chú:</strong> <?php echo $row['note'] ?: 'Không có'; ?></p>
+		<p><strong>Trạng thái:</strong> <?php echo ucfirst($row['status']); ?></p>
+		<p><strong>Ngày tạo:</strong> <?php echo $row['created_at']; ?></p>
+		<?php
+	} else {
+		echo "Không tìm thấy lịch hẹn.";
+	}
+	exit;
+}
+
 ob_end_flush();
 ?>
