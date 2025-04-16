@@ -28,9 +28,6 @@
 			<a href="index.php?page=reviews" class="nav-item nav-reviews">
             	<span class='icon-field'><i class="fa fa-comments "></i></span> Reviews & Comments
         	</a>
-
-			<a href="index.php?page=contracts" class="nav-item nav-contracts"><span class='icon-field'><i class="fa fa-file-alt"></i></span> Contracts</a>
-			
 			 <!-- Hẹn lịch xem nhà -->
 			<a href="index.php?page=schedule_viewing" class="nav-item nav-schedule">
             	<span class='icon-field'><i class="fa fa-calendar-check"></i></span> Schedule Viewing

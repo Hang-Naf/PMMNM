@@ -4,6 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 include('db_connect.php'); // Kết nối cơ sở dữ liệu
+include 'header.php';       // Load CSS và meta
 
 // Lấy danh sách đánh giá từ bảng reviews
 $query = "SELECT * FROM reviews ORDER BY created_at DESC";
@@ -17,7 +18,7 @@ $result = $conn->query($query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đánh Giá</title>
-    <!-- Thêm các liên kết CSS (Bootstrap, FontAwesome, v.v...) -->
+    <!-- Thêm các liên kết CSS (Bootstrap, FontAwesome, v.v...) --> 
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     
 </head>
@@ -71,8 +72,6 @@ $result = $conn->query($query);
         </div>
     </div>
 
-    <!-- Thêm thư viện JS (Bootstrap và jQuery nếu cần) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -110,7 +110,14 @@ $(document).ready(function () {
             success: function (res) {
                 if (res.status === 'success') {
                     alert("🎉 " + res.message);
-                    window.location.href = 'index.php?page=manage_appointments';
+                    
+                    // Reset form
+                    $('#booking-form')[0].reset();
+
+                    // Ẩn thông báo sau 3 giây (nếu muốn)
+                    setTimeout(function () {
+                        $('#success-message').addClass('d-none');
+                    }, 3000);
                 } else {
                     alert("❌ " + res.message);
                 }
