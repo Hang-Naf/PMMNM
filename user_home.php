@@ -30,6 +30,52 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="user.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+
+    <style>
+        #maintenance-menu {
+            white-space: nowrap !important;
+            width: max-content !important;
+            padding: 10px 15px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            z-index: 999;
+        }
+
+        #maintenance-menu a {
+            display: block;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .dropdown-active {
+            display: block !important;
+        }
+
+        .icon-wrapper {
+            position: relative;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            color: black;
+            padding: 5px 10px;
+            text-decoration: none;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f0f0f0;
+        }
+        #maintenance-menu a {
+        display: block;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    </style>
+
+
+    
     
 </head>
 
@@ -116,6 +162,11 @@ $result = $conn->query($sql);
                     <a href="#">Xem tất cả</a>
                 </div>
             </div>
+
+            <!-- <div class="icon-wrapper">
+                <i class="fas fa-tools" id="maintenance-icon" onclick="window.location.href='maintenance_user.php'"></i>
+            </div> -->
+
             <div class="icon-wrapper">
                 <i class="fas fa-user" id="user-icon"></i>
                 <div class="dropdown-menu" id="user-menu">
@@ -123,7 +174,18 @@ $result = $conn->query($sql);
                     <a href="ajax.php?action=logout">Đăng xuất</a>
                 </div>
             </div>
+
+            <div class="icon-wrapper">
+                <i class="fas fa-tools" id="maintenance-icon"></i>
+                <div class="dropdown-menu" id="maintenance-menu">
+                    <a href="maintenance_user.php">Yêu cầu bảo trì</a>
+                </div>
+            </div>
+
+
         </div>
+
+
         <button class="post-button" onclick="window.location.href='user_addhouse.php'">
             ĐĂNG TIN
         </button>
@@ -222,6 +284,8 @@ $result = $conn->query($sql);
             });
         });
         document.addEventListener("DOMContentLoaded", function() {
+            
+
             const icons = [{
                     icon: "bell-icon",
                     menu: "bell-menu"
@@ -231,10 +295,15 @@ $result = $conn->query($sql);
                     menu: "chat-menu"
                 },
                 {
+                    icon: "maintenance-icon",
+                    menu: "maintenance-menu"
+                },
+                {
                     icon: "user-icon",
                     menu: "user-menu"
                 }
             ];
+
 
             icons.forEach(({
                 icon,
@@ -269,5 +338,6 @@ $result = $conn->query($sql);
         });
     </script>
 </body>
+
 
 </html>
