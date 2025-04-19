@@ -52,7 +52,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <?php echo "Chào mừng " . $_SESSION['login_name'] . "đã đến với House Rental!"  ?>
+                    <?php echo "Chào mừng " . $_SESSION['login_name'] . " đã đến với House Rental!"  ?>
                     <hr>
                     <div class="row">
                         <div class="col-md-4 mb-3">
