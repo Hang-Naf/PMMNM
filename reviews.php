@@ -26,7 +26,9 @@ $result = $conn->query($query);
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4">Đánh Giá Nhà Thuê</h2>
-
+        <div class="text-center mb-3">
+            <a href="user_home.php" class="btn btn-primary">← Quay về Trang Chủ</a>
+        </div>
         <!-- Form thêm đánh giá mới -->
         <div class="card mb-4">
             <div class="card-header">

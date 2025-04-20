@@ -1,41 +1,5 @@
 <html>
-<?php
-// session_start();
-// require 'db_connect.php'; // Kết nối CSDL
 
-// // Kiểm tra đăng nhập
-// if (!isset($_SESSION['user_id'])) {
-//     header('Location: login.php');
-//     exit();
-// }
-
-// $user_id = $_SESSION['user_id'];
-// $query = "SELECT * FROM users WHERE id = ?";
-// $stmt = $conn->prepare($query);
-// $stmt->bind_param("i", $user_id);
-// $stmt->execute();
-// $result = $stmt->get_result();
-// $user = $result->fetch_assoc();
-
-// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//     $fullname = $_POST['fullname'];
-//     $phone = $_POST['phone'];
-//     $address = $_POST['address'];
-//     $bio = $_POST['bio'];
-//     $email = $_POST['email'];
-//     $gender = $_POST['gender'];
-//     $dob = $_POST['dob'];
-    
-//     $updateQuery = "UPDATE users SET fullname=?, phone=?, address=?, bio=?, email=?, gender=?, dob=? WHERE id=?";
-//     $updateStmt = $conn->prepare($updateQuery);
-//     $updateStmt->bind_param("sssssssi", $fullname, $phone, $address, $bio, $email, $gender, $dob, $user_id);
-//     if ($updateStmt->execute()) {
-//         echo "<script>alert('Cập nhật thành công!'); window.location.href='user_profile.php';</script>";
-//     } else {
-//         echo "<script>alert('Có lỗi xảy ra!');</script>";
-//     }
-// }
-?>
 <head>
     <title>Thông tin cá nhân</title>
     <link rel="stylesheet" href="user.css">
@@ -277,7 +241,7 @@
             <div class="icon-wrapper">
                 <i class="fas fa-user" id="user-icon"></i>
                 <div class="dropdown-menu" id="user-menu">
-                    <a href="user_profile.php" id="manage_my_account">Thông tin tài khoản</a>
+                    <a href="user_profile.php">Thông tin tài khoản</a>
                     <a href="ajax.php?action=logout">Đăng xuất</a>
                 </div>
             </div>
@@ -296,9 +260,9 @@
             <div class="sidebar">
                 <ul>
                     <li><a class="ttcn" href="#">Thông tin cá nhân</a></li>
-                    <!-- <li><a href="#">Liên kết mạng xã hội</a></li> -->
-                    <li><a href="#">Cài đặt tài khoản</a></li> <!-- đặt lại mật khẩu, quên mật khẩu -->
-                    <!-- <li><a href="#">Quản lý lịch sử đăng nhập</a></li> -->
+                    <li><a href="#">Liên kết mạng xã hội</a></li>
+                    <li><a href="#">Cài đặt tài khoản</a></li>
+                    <li><a href="#">Quản lý lịch sử đăng nhập</a></li>
                 </ul>
             </div>
         </div>
@@ -314,13 +278,13 @@
                 </div>
                 <div class="form-group">
                     <label for="address">Số điện thoại*</label>
-                    <input type="text" name="phone" id="" value="<?= htmlspecialchars($user['phone']) ?>" required>
+                    <input type="text" name="" id="">
                 </div>
                 <div class="form-group">
-                    <label for="address">Địa chỉ</label> <!-- address_user -->
-                    <input type="text" id="address" name="address" value="<?= htmlspecialchars($user['address']) ?>">
+                    <label for="address">Địa chỉ</label>
+                    <input type="text" id="address">
                 </div>
-                <!-- <div class="form-group">
+                <div class="form-group">
                     <label for="bio">Giới thiệu</label>
                     <textarea id="bio" rows="3" placeholder="Viết vài dòng giới thiệu về ngôi nhà của bạn..."></textarea>
                 </div>
@@ -332,12 +296,12 @@
                 <div class="form-group">
                     <label for="nickname">Tên gợi nhớ</label>
                     <input type="text" id="nickname">
-                </div> -->
+                </div>
                 <div class="section-title">Thông tin bảo mật</div>
                 <div class="form-group">
                     <label for="email">Email*</label>
                     <div class="input-group">
-                        <input type="email" id="email" value="<?= htmlspecialchars($user['email']) ?>" readonly>
+                        <input type="email" id="email" value="" readonly>
                         <button class="change-link">Thay đổi</button>
                     </div>
                 </div>
@@ -345,7 +309,7 @@
                     <label for="id">CCCD / CMND / Hộ chiếu</label>
                     <input type="text" id="id">
                 </div>
-                <!-- <div class="form-group">
+                <div class="form-group">
                     <label for="tax">Thông tin xuất hóa đơn</label>
                     <input type="text" id="tax">
                 </div>
@@ -356,19 +320,19 @@
                 <div class="form-group">
                     <label for="favorite-category">Danh mục yêu thích</label>
                     <input type="text" id="favorite-category">
-                </div> -->
+                </div>
                 <div class="form-group select-group">
                     <div>
                         <label for="gender">Giới tính</label>
                         <select id="gender">
-                            <option value="male" <?= $user['gender'] == 'male' ? 'selected' : '' ?>>Nam</option>
-                            <option value="female" <?= $user['gender'] == 'female' ? 'selected' : '' ?>>Nữ</option>
-                            <option value="other" <?= $user['gender'] == 'other' ? 'selected' : '' ?>>Khác</option>
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                            <option value="other">Khác</option>
                         </select>
                     </div>
                     <div>
                         <label for="dob">Ngày, tháng, năm sinh</label>
-                        <input type="date" id="dob" name="dob" value="<?= htmlspecialchars($user['dob']) ?>">
+                        <input type="date" id="dob">
                     </div>
                 </div>
                 <button class="btn-save">LƯU THAY ĐỔI</button>
@@ -429,9 +393,6 @@
                 });
             }
         });
-        // $('#manage_my_account').click(function() {
-        //     uni_modal("Manage Account", "user_profile.php?id=<?php echo $_SESSION['login_id'] ?>&mtype=own")
-        // })
     </script>
 </body>
 

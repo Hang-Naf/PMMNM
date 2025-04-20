@@ -1,8 +1,6 @@
-<?php 
+<?php
 
-// $conn= new mysqli('localhost',username: 'root','','house_rental_db')or die("Could not connect to mysql".mysqli_error($con));
-
-// $connection = new mysqli('localhost', 'root', '', 'house_rental_db', port: 3307);
+// $conn = new mysqli('localhost', 'root', '', 'house_rental_db') or die("Could not connect to mysql" . mysqli_error($con));
 
 $servername = "localhost";
 $username = "root";
