@@ -1,1 +1,2 @@
-// trang sửa 127.00... thành locallhost
+// trang "user_home.php", "houses.php" sửa edit "localhost" thành "127.0.0.1" thêm "port: 3307"
+// "save_schedules.php" có hostname: "127.0.0.1", port: 3307
