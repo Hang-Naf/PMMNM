@@ -15,6 +15,7 @@
     header('location:login.php');
   include('./header.php');
   // include('./auth.php'); 
+  
   ?>
 
 </head>

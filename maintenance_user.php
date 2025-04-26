@@ -1,6 +1,7 @@
 <?php
 include 'db_connect.php';
-
+session_start();
+$user_id = $_SESSION['login_id'] ?? NULL;
 $success = false;
 $error = '';
 
@@ -10,13 +11,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $issue = $_POST['issue'] ?? '';
     $request_date = $_POST['request_date'] ?? '';
 
+
     // Kiểm tra đơn giản
     if ($tenant_name && $room_number && $issue && $request_date) {
-        $stmt = $conn->prepare("INSERT INTO maintenance_requests (tenant_name, room_number, issue, request_date) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $tenant_name, $room_number, $issue, $request_date);
+        $stmt = $conn->prepare("INSERT INTO maintenance_requests (user_id, tenant_name, room_number, issue, request_date) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("issss", $user_id, $tenant_name, $room_number, $issue, $request_date);
 
         if ($stmt->execute()) {
             $success = true;
+
+            // Gửi thông báo tới admin
+            $conn->query("INSERT INTO notifications (title, message, type, created_at) 
+            VALUES ('Yêu cầu bảo trì', '🔧 Người dùng $tenant_name đã gửi yêu cầu bảo trì phòng $room_number', 'user_to_admin', NOW())");
+            $now = date('d-m-Y H:i');
+    
         } else {
             $error = "Lỗi khi gửi yêu cầu: " . $stmt->error;
         }
@@ -203,12 +211,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <div class="container">
         <h2>🔧 Gửi Yêu Cầu Bảo Trì</h2>
-
-        <!-- <?php if ($success): ?>
-            <p class="success-message">✅ Yêu cầu đã được gửi thành công!</p>
-        <?php elseif ($error): ?>
-            <p class="error-message">❌ <?php echo htmlspecialchars($error); ?></p>
-        <?php endif; ?> -->
 
         <?php if ($success): ?>
             <p class="success-message">✅ Yêu cầu đã được gửi thành công!</p>

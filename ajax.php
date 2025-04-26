@@ -119,24 +119,75 @@ if ($action == "delete_payment") {
 		echo $save;
 }
 
-if($action == "confirm_schedule"){
+// if($action == "confirm_schedule"){
+//     $id = $_POST['id'];
+//     $update = $conn->query("UPDATE schedules SET status = 1 WHERE id = $id");
+//     if($update){
+//         echo 1;
+// 		exit;
+//     }
+// }
+
+// if($action == "cancel_schedule"){
+//     $id = $_POST['id'];
+//     $delete = $conn->query("DELETE FROM schedules WHERE id = $id");
+//     if($delete){
+//         echo 1;
+// 		exit;
+//     }
+// }
+
+if ($_GET['action'] == 'confirm_schedule') {
     $id = $_POST['id'];
-    $update = $conn->query("UPDATE schedules SET status = 1 WHERE id = $id");
-    if($update){
-        echo 1;
-		exit;
+    $conn->query("UPDATE schedules SET status = 1 WHERE id = $id");
+
+    // Lấy thông tin lịch hẹn
+    $result = $conn->query("SELECT tenant_name, date_in, time_in FROM schedules WHERE id = $id");
+    $data = $result->fetch_assoc();
+
+    // Gửi thông báo
+    $tenant_name = $data['tenant_name'];
+    $date = date('d-m-Y', strtotime($data['date_in']));
+    $time = date('H:i', strtotime($data['time_in']));
+    $message = "✅ Lịch hẹn ngày $date lúc $time của bạn đã được xác nhận";
+
+
+    // Tìm user_id từ users theo tenant_name
+    $user_q = $conn->query("SELECT id FROM users WHERE name = '$tenant_name' LIMIT 1");
+    if ($user_q && $user_q->num_rows > 0) {
+        $user_id = $user_q->fetch_assoc()['id'];
+        $conn->query("INSERT INTO notifications (user_id, message, type) VALUES ($user_id, '$message', 'schedule_confirm')");
     }
+    echo 1;
+    exit;
 }
 
-if($action == "cancel_schedule"){
+if ($_GET['action'] == 'cancel_schedule') {
     $id = $_POST['id'];
-    $delete = $conn->query("DELETE FROM schedules WHERE id = $id");
-    if($delete){
-        echo 1;
-		exit;
+    // $conn->query("DELETE FROM schedules WHERE id = $id");
+
+    // Lấy thông tin lịch hẹn
+    $result = $conn->query("SELECT tenant_name, date_in, time_in FROM schedules WHERE id = $id");
+    if ($result && $result->num_rows > 0) {
+        $data = $result->fetch_assoc();
+
+        $tenant_name = $data['tenant_name'];
+        $date = date('d-m-Y', strtotime($data['date_in']));
+        $time = date('H:i', strtotime($data['time_in']));
+        $message = "❌ Lịch hẹn ngày $date lúc $time của bạn đã bị hủy";
+
+        // Tìm user_id từ bảng users
+        $user_q = $conn->query("SELECT id FROM users WHERE name = '$tenant_name' LIMIT 1");
+        if ($user_q && $user_q->num_rows > 0) {
+            $user_id = $user_q->fetch_assoc()['id'];
+            $conn->query("INSERT INTO notifications (user_id, message, type) VALUES ($user_id, '$message', 'schedule_cancel')");
+        }
     }
+	// Sau khi đã gửi thông báo -> XÓA lịch
+    $conn->query("DELETE FROM schedules WHERE id = $id");
+    echo 1;
+    exit;
 }
-	
 
 if($action == "save_notification"){
     $save = $crud->save_notification();
@@ -150,5 +201,12 @@ if($action == "delete_notification"){
 	if($save)
 		echo $save;
 }
+
+if ($_GET['action'] == 'mark_all_read') {
+    $conn->query("UPDATE notifications SET is_read = 1 WHERE type = 'user_to_admin'");
+    echo 1;
+    exit;
+}
+
 
 ob_end_flush();

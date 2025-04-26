@@ -20,7 +20,15 @@ if ($conn->connect_error) {
 
 
 // Truy vấn lấy thông báo chung từ admin
-$notification_result = $conn->query("SELECT * FROM notifications ORDER BY created_at DESC");
+// $notification_result = $conn->query("SELECT * FROM notifications ORDER BY created_at DESC");
+$user_id = $_SESSION['login_id'];
+$notification_result = $conn->query("
+    SELECT * FROM notifications 
+    WHERE (user_id IS NULL OR user_id = $user_id) 
+    AND (type IS NULL OR type NOT IN ('user_to_admin'))
+    ORDER BY created_at DESC
+");
+
 
 // Truy vấn danh sách nhà
 $sql = "SELECT h.id, h.house_no, h.description, h.price, c.name as category FROM houses h 
@@ -77,7 +85,23 @@ $result = $conn->query($sql);
         display: block;
         font-size: 14px;
         white-space: nowrap;
-    }
+        }
+        #bell-menu {
+    max-height: 300px;      /* Chiều cao tối đa */
+    overflow-y: auto;       /* Cho phép cuộn dọc */
+    width: 300px;           /* Chiều rộng cố định */
+    border: 1px solid #ccc; /* Viền khung */
+    padding: 10px;
+    background: #fff;       /* Nền trắng để dễ đọc */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Đổ bóng nhẹ */
+    z-index: 999;
+}
+
+.notification-item {
+    border-bottom: 1px solid #eee;
+    padding: 6px 0;
+    font-size: 14px;
+}
 
     </style>
 
@@ -149,12 +173,19 @@ $result = $conn->query($sql);
                 <i class="fas fa-bell" id="bell-icon"></i>
                 <div class="dropdown-menu" id="bell-menu">
                     <?php if ($notification_result->num_rows > 0): ?>
-                        <?php while($notif = $notification_result->fetch_assoc()): ?>
-                            <div class="notification-item">
-                                <?php echo htmlspecialchars($notif['message']); ?><br>
-                                <small><?php echo date("d/m/Y H:i", strtotime($notif['created_at'])); ?></small>
-                            </div>
-                        <?php endwhile; ?>
+                    <?php while($notif = $notification_result->fetch_assoc()): ?>
+                        <div class="notification-item">
+                            <?php if ($notif['type'] == 'maintenance_done'): ?>
+                                <strong style="color: #007bff;">🔧 [Bảo trì]</strong><br>
+                            <?php elseif ($notif['type'] == 'general'): ?>
+                                <strong style="color: #555;">📢 [Thông báo]</strong><br>
+                            <?php endif; ?>
+
+                            <?php echo htmlspecialchars($notif['message']); ?><br>
+                            <small><?php echo date("d/m/Y H:i", strtotime($notif['created_at'])); ?></small>
+                        </div>
+                    <?php endwhile; ?>
+
                     <?php else: ?>
                         <div class="notification-item">Không có thông báo nào</div>
                     <?php endif; ?>

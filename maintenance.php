@@ -1,68 +1,3 @@
-<!-- <?php 
-include 'db_connect.php';
-?>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý yêu cầu bảo trì</title>
-    <style>
-		.row {
-			display: flex;
-			flex-wrap: wrap;
-		}
-
-		.card {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
-
-		.card-body {
-			flex-grow: 1; /* Để phần nội dung mở rộng tối đa */
-		}
-	</style>
-</head>
-<body>
-<div class="container-fluid">
-	<div class="col-lg-12">
-		<div class="card">
-			<div class="card-body">
-				<div class="col-md-12">
-					<div class="row">
-						<div class="col-sm-4">
-							<div class="card border-primary">
-								<div class="card-body bg-light">
-									<h4><b>Maintenance required</b></h4>
-								</div>
-								<div class="card-footer">
-									<div class="col-md-12">
-										<a href="index.php?page=maintenance_user" class="d-flex justify-content-between"> <span>View Report</span> <span class="fa fa-chevron-circle-right"></span></a>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-sm-4">
-							<div class="card border-primary">
-								<div class="card-body bg-light">
-									<h4><b>Receive maintenance requests</b></h4>
-								</div>
-								<div class="card-footer">
-									<div class="col-md-12">
-										<a href="index.php?page=maintenance_admin" class="d-flex justify-content-between"> <span>View Report</span> <span class="fa fa-chevron-circle-right"></span></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</body>
-</html> -->
 <?php
 include 'db_connect.php';
 
@@ -70,9 +5,30 @@ include 'db_connect.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $id = $_POST['request_id'];
     $new_status = $_POST['status'];
+// Lấy trạng thái cũ và tên người thuê
+$old_res = $conn->query("SELECT status, tenant_name FROM maintenance_requests WHERE id = $id");
     
-    $sql = "UPDATE maintenance_requests SET status = '$new_status' WHERE id = $id";
-    mysqli_query($conn, $sql);
+if ($old_res && $old_res->num_rows > 0) {
+    $old_data = $old_res->fetch_assoc();
+    $old_status = $old_data['status'];
+    $tenant_name = $old_data['tenant_name'];
+
+    // Cập nhật trạng thái mới
+    $conn->query("UPDATE maintenance_requests SET status = '$new_status' WHERE id = $id");
+
+    // Nếu trạng thái chuyển thành "Đã sửa xong", gửi thông báo
+    if ($old_status != 'Đã sửa xong' && $new_status == 'Đã sửa xong') {
+        $user_q = $conn->query("SELECT id FROM users WHERE name = '$tenant_name' LIMIT 1");
+        if ($user_q && $user_q->num_rows > 0) {
+            $user_row = $user_q->fetch_assoc();
+            $user_id = $user_row['id'];
+            $message = "Yêu cầu bảo trì của bạn ($tenant_name) đã được hoàn thành";
+            $conn->query("INSERT INTO notifications (user_id, message, type) 
+                          VALUES ($user_id, '$message', 'maintenance_done')");
+        }
+    }
+    
+}
 }
 
 // Lấy danh sách yêu cầu bảo trì
@@ -85,7 +41,7 @@ $result = mysqli_query($conn, "SELECT * FROM maintenance_requests");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách Yêu Cầu Bảo Trì</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; text-align: center; }
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa }
         .container { width: 80%; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }

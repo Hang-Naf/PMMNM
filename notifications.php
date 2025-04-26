@@ -54,7 +54,12 @@
                             <tbody>
                                 <?php 
                                 $i = 1;
-                                $notifications = $conn->query("SELECT * FROM notifications ORDER BY id ASC");
+                                // $notifications = $conn->query("SELECT * FROM notifications ORDER BY id ASC");
+                                $notifications = $conn->query("
+                                SELECT * FROM notifications 
+                                WHERE (type = 'general') 
+                                ORDER BY created_at DESC
+                                ");
                                 if ($notifications) { // Kiểm tra nếu truy vấn không lỗi
                                     while($row = $notifications->fetch_assoc()):
                                 ?>
