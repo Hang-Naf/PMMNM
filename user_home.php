@@ -16,8 +16,10 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
 
 
 // Truy vấn danh sách nhà
-$sql = "SELECT h.id, h.house_no, h.description, h.price, c.name as category FROM houses h 
-        JOIN categories c ON h.category_id = c.id ORDER BY h.id DESC";
+$sql = "SELECT h.id, h.house_no, h.description, h.price, h.address, h.image, h.created_at, c.name as category 
+         FROM houses h 
+         JOIN categories c ON h.category_id = c.id 
+         ORDER BY h.id DESC";
 $result = $conn->query($sql);
 ?>
 
@@ -66,17 +68,17 @@ $result = $conn->query($sql);
         .dropdown-menu a:hover {
             background-color: #f0f0f0;
         }
-        #maintenance-menu a {
-        display: block;
-        font-size: 14px;
-        white-space: nowrap;
-    }
 
+        #maintenance-menu a {
+            display: block;
+            font-size: 14px;
+            white-space: nowrap;
+        }
     </style>
 
 
-    
-    
+
+
 </head>
 
 <body>
@@ -142,7 +144,7 @@ $result = $conn->query($sql);
                 <i class="fas fa-bell" id="bell-icon"></i>
                 <div class="dropdown-menu" id="bell-menu">
                     <?php if ($notification_result->num_rows > 0): ?>
-                        <?php while($notif = $notification_result->fetch_assoc()): ?>
+                        <?php while ($notif = $notification_result->fetch_assoc()): ?>
                             <div class="notification-item">
                                 <?php echo htmlspecialchars($notif['message']); ?><br>
                                 <small><?php echo date("d/m/Y H:i", strtotime($notif['created_at'])); ?></small>
@@ -264,11 +266,16 @@ $result = $conn->query($sql);
             <div class="listing">
                 <?php while ($row = $result->fetch_assoc()) { ?>
                     <div class="item">
+                        <img src="<?php echo htmlspecialchars($row['image']); ?>" alt="Hình ảnh nhà" onerror="this.src='default.jpg';">
                         <div class="details">
                             <h3><?php echo htmlspecialchars($row['house_no']); ?></h3>
                             <div class="price">Giá: <?php echo number_format($row['price']); ?> triệu/tháng</div>
                             <div class="location">Loại: <?php echo htmlspecialchars($row['category']); ?></div>
                             <div class="description">Mô tả: <?php echo htmlspecialchars($row['description']); ?></div>
+                            <div class="address">
+                                Địa chỉ: <?php echo isset($row['address']) ? htmlspecialchars($row['address']) : "Chưa cập nhật"; ?>
+                            </div>
+                            <div class="created_at">Đăng lúc: <?php echo htmlspecialchars($row['created_at']); ?> </div>
                         </div>
                     </div>
                 <?php } ?>
@@ -284,7 +291,7 @@ $result = $conn->query($sql);
             });
         });
         document.addEventListener("DOMContentLoaded", function() {
-            
+
 
             const icons = [{
                     icon: "bell-icon",
