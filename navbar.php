@@ -4,6 +4,7 @@
 	}
 
 	nav#sidebar {
+		top: 55px;
 		/*background: url(assets/uploads/<?php echo $_SESSION['system']['cover_img'] ?>) !important*/
 	}
 </style>
@@ -21,6 +22,11 @@
 			<a href="index.php?page=users" class="nav-item nav-users"><span class='icon-field'><i class="fa fa-users "></i></span> Users</a>
 			<!-- <a href="index.php?page=site_settings" class="nav-item nav-site_settings"><span class='icon-field'><i class="fa fa-cogs text-danger"></i></span> System Settings</a> -->
 		<?php endif; ?>
+		<a href="index.php?page=maintenance" class="nav-item nav-maintenance"><span class='icon-field'><i class="fa fa-tools "></i></span> Bảo trì</a>
+		<!-- Quản lý lịch hẹn -->
+		<a href="index.php?page=manage_appointments" class="nav-item nav-manage_appointments">
+			<span class='icon-field'><i class="fa fa-calendar"></i></span> Quản lý lịch hẹn
+		</a>
 	</div>
 
 </nav>
