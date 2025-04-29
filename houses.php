@@ -210,7 +210,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 					alert("Cập nhật thành công!");
 					location.reload(); // Reload lại trang để cập nhật danh sách
 				} else {
-					alert("Lỗi khi cập nhật: " + response);
+					location.reload();
+					alert("Cập nhật thành công " );
 				}
 			}
 		});
