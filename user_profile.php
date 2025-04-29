@@ -1,41 +1,42 @@
 <html>
 <?php
-// session_start();
-// require 'db_connect.php'; // Kết nối CSDL
+session_start();
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "house_rental_db";
 
-// // Kiểm tra đăng nhập
-// if (!isset($_SESSION['user_id'])) {
-//     header('Location: login.php');
-//     exit();
-// }
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
 
-// $user_id = $_SESSION['user_id'];
-// $query = "SELECT * FROM users WHERE id = ?";
-// $stmt = $conn->prepare($query);
-// $stmt->bind_param("i", $user_id);
-// $stmt->execute();
-// $result = $stmt->get_result();
-// $user = $result->fetch_assoc();
+// Lấy ID người dùng từ session
+if (isset($_SESSION['login_id'])) {
+    $user_id = $_SESSION['login_id'];
 
-// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//     $fullname = $_POST['fullname'];
-//     $phone = $_POST['phone'];
-//     $address = $_POST['address'];
-//     $bio = $_POST['bio'];
-//     $email = $_POST['email'];
-//     $gender = $_POST['gender'];
-//     $dob = $_POST['dob'];
-    
-//     $updateQuery = "UPDATE users SET fullname=?, phone=?, address=?, bio=?, email=?, gender=?, dob=? WHERE id=?";
-//     $updateStmt = $conn->prepare($updateQuery);
-//     $updateStmt->bind_param("sssssssi", $fullname, $phone, $address, $bio, $email, $gender, $dob, $user_id);
-//     if ($updateStmt->execute()) {
-//         echo "<script>alert('Cập nhật thành công!'); window.location.href='user_profile.php';</script>";
-//     } else {
-//         echo "<script>alert('Có lỗi xảy ra!');</script>";
-//     }
-// }
+    // Truy vấn thông tin người dùng
+    $sql = "SELECT * FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();  // ✅ Gán vào biến $user
+    } else {
+        echo "Không tìm thấy người dùng.";
+        exit;
+    }
+} else {
+    echo "Bạn chưa đăng nhập.";
+    exit;
+}
+// Truy vấn lấy thông báo chung từ admin
+$notification_result = $conn->query("SELECT * FROM notifications ORDER BY created_at DESC");
+
 ?>
+
 <head>
     <title>Thông tin cá nhân</title>
     <link rel="stylesheet" href="user.css">
@@ -210,31 +211,35 @@
 </head>
 
 <body>
-    <div class="navbar">
-        <i class="fas fa-bars menu-icon">
-        </i>
+<div class="navbar">
+        <a href="user_home.php">
+            <img src="logo.png" alt="" width="50px" style="border-radius: 50%;">
+        </a>
         <div class="dropdown">
             <button class="dropdown-toggle">
-                Mua bán
+                Trang chủ
                 <i class="fas fa-chevron-down">
                 </i>
             </button>
             <div class="dropdown-menu">
+                <a href="#">Biệt thự</a>
                 <a href="#">
-                    Căn hộ/Chung cư
+                    Chung cư
                 </a>
                 <a href="#">
-                    Nhà ở
+                    Căn hộ
                 </a>
                 <a href="#">
-                    Đất
+                    Duplex (căn hộ thông tầng)
                 </a>
                 <a href="#">
-                    Văn phòng, Mặt bằng kinh doanh
+                    Nhà đơn/ Nhà riêng
                 </a>
+                <a href="#">Nhà 2 tầng</a>
+                <a href="#">Nhà cấp 4</a>
             </div>
         </div>
-        <div class="dropdown">
+        <!-- <div class="dropdown">
             <button class="dropdown-toggle">
                 Bất động sản
                 <i class="fas fa-chevron-down">
@@ -251,7 +256,7 @@
                     Option 3
                 </a>
             </div>
-        </div>
+        </div> -->
         <div class="search-bar">
             <input placeholder="Search..." type="text" />
             <button>
@@ -260,28 +265,68 @@
             </button>
         </div>
         <div class="icons">
-            <div class="icon-wrapper">
+            <!-- <div class="icon-wrapper">
                 <i class="fas fa-bell" id="bell-icon"></i>
                 <div class="dropdown-menu" id="bell-menu">
                     <p>Thông báo của bạn</p>
                     <a href="#">Xem tất cả</a>
                 </div>
+            </div> -->
+
+            <div class="icon-wrapper">
+                <i class="fas fa-bell" id="bell-icon"></i>
+                <div class="dropdown-menu" id="bell-menu">
+                    <?php if ($notification_result->num_rows > 0): ?>
+                        <?php while ($notif = $notification_result->fetch_assoc()): ?>
+                            <div class="notification-item">
+                                <?php if ($notif['type'] == 'maintenance_done'): ?>
+                                    <strong style="color: #007bff;">🔧 [Bảo trì]</strong><br>
+                                <?php elseif ($notif['type'] == 'general'): ?>
+                                    <strong style="color: #555;">📢 [Thông báo]</strong><br>
+                                <?php endif; ?>
+
+                                <?php echo htmlspecialchars($notif['message']); ?><br>
+                                <small><?php echo date("d/m/Y H:i", strtotime($notif['created_at'])); ?></small>
+                            </div>
+                        <?php endwhile; ?>
+
+                    <?php else: ?>
+                        <div class="notification-item">Không có thông báo nào</div>
+                    <?php endif; ?>
+                </div>
             </div>
+
             <div class="icon-wrapper">
                 <i class="fas fa-comments" id="chat-icon"></i>
                 <div class="dropdown-menu" id="chat-menu">
-                    <p>Tin nhắn của bạn</p>
-                    <a href="#">Xem tất cả</a>
+                    <p>Đánh giá</p>
+                    <a href="reviews.php">Xem tất cả</a>
                 </div>
             </div>
+
+            <!-- <div class="icon-wrapper">
+                <i class="fas fa-tools" id="maintenance-icon" onclick="window.location.href='maintenance_user.php'"></i>
+            </div> -->
+
             <div class="icon-wrapper">
                 <i class="fas fa-user" id="user-icon"></i>
                 <div class="dropdown-menu" id="user-menu">
-                    <a href="user_profile.php" id="manage_my_account">Thông tin tài khoản</a>
+                    <a href="user_profile.php">Thông tin tài khoản</a>
                     <a href="ajax.php?action=logout">Đăng xuất</a>
                 </div>
             </div>
+
+            <div class="icon-wrapper">
+                <i class="fas fa-tools" id="maintenance-icon"></i>
+                <div class="dropdown-menu" id="maintenance-menu">
+                    <a href="maintenance_user.php">Yêu cầu bảo trì</a>
+                </div>
+            </div>
+
+
         </div>
+
+
         <button class="post-button" onclick="window.location.href='user_addhouse.php'">
             ĐĂNG TIN
         </button>
@@ -306,33 +351,19 @@
             <div class="main-content">
                 <div class="section-title">Hồ sơ cá nhân</div>
                 <div class="form-group">
-                    <label for="name">Họ và tên* </label>
+                    <label for="name">Họ và tên (tên tài khoản)* </label>
                     <div class="input-group">
-                        <input type="text" id="name" value="" required>
-                        <!-- <button><i class="fas fa-phone"></i> Thêm số điện thoại</button> -->
+                        <input type="text" id="name" value="<?= htmlspecialchars($user['username']) ?>" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="address">Số điện thoại*</label>
+                    <label for="phone">Số điện thoại*</label>
                     <input type="text" name="phone" id="" value="<?= htmlspecialchars($user['phone']) ?>" required>
                 </div>
                 <div class="form-group">
                     <label for="address">Địa chỉ</label> <!-- address_user -->
-                    <input type="text" id="address" name="address" value="<?= htmlspecialchars($user['address']) ?>">
+                    <input type="text" id="address_user" name="address_user" value="<?= htmlspecialchars($user['address_user']) ?>">
                 </div>
-                <!-- <div class="form-group">
-                    <label for="bio">Giới thiệu</label>
-                    <textarea id="bio" rows="3" placeholder="Viết vài dòng giới thiệu về ngôi nhà của bạn..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="website">Tài khoản</label>
-                    <input type="text" id="website" value="">
-                    <div class="note">Tài khoản của bạn sẽ được hiển thị công khai trên trang cá nhân của bạn.</div>
-                </div>
-                <div class="form-group">
-                    <label for="nickname">Tên gợi nhớ</label>
-                    <input type="text" id="nickname">
-                </div> -->
                 <div class="section-title">Thông tin bảo mật</div>
                 <div class="form-group">
                     <label for="email">Email*</label>
@@ -343,20 +374,8 @@
                 </div>
                 <div class="form-group">
                     <label for="id">CCCD / CMND / Hộ chiếu</label>
-                    <input type="text" id="id">
+                    <input type="text" id="id" value="<?= htmlspecialchars($user['cccd']) ?>">
                 </div>
-                <!-- <div class="form-group">
-                    <label for="tax">Thông tin xuất hóa đơn</label>
-                    <input type="text" id="tax">
-                </div>
-                <div class="form-group">
-                    <label for="tax-code">Mã số thuế</label>
-                    <input type="text" id="tax-code">
-                </div>
-                <div class="form-group">
-                    <label for="favorite-category">Danh mục yêu thích</label>
-                    <input type="text" id="favorite-category">
-                </div> -->
                 <div class="form-group select-group">
                     <div>
                         <label for="gender">Giới tính</label>
@@ -384,6 +403,8 @@
             });
         });
         document.addEventListener("DOMContentLoaded", function() {
+
+
             const icons = [{
                     icon: "bell-icon",
                     menu: "bell-menu"
@@ -393,10 +414,15 @@
                     menu: "chat-menu"
                 },
                 {
+                    icon: "maintenance-icon",
+                    menu: "maintenance-menu"
+                },
+                {
                     icon: "user-icon",
                     menu: "user-menu"
                 }
             ];
+
 
             icons.forEach(({
                 icon,
