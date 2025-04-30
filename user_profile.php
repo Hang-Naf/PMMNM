@@ -32,6 +32,37 @@ if (isset($_SESSION['login_id'])) {
     echo "Bạn chưa đăng nhập.";
     exit;
 }
+// Cập nhật thông tin
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $name = $_POST["name"];
+    $phone = $_POST["phone"];
+    $address_user = $_POST["address_user"];
+    $email = $_POST["email"];
+    $cccd = $_POST["cccd"];
+    $gender = $_POST["gender"];
+    $dob = $_POST["dob"];
+
+    // Cập nhật mật khẩu nếu có
+    if (!empty($_POST["new_password"])) {
+        $new_password = password_hash($_POST["new_password"], PASSWORD_DEFAULT);
+        $stmt = $conn->prepare("UPDATE users SET password=? WHERE id=?");
+        $stmt->bind_param("si", $new_password, $user_id);
+        $stmt->execute();
+    }
+
+    // Cập nhật thông tin cá nhân
+    $stmt = $conn->prepare("UPDATE users SET name=?, email=?, phone=?, address_user=?, cccd=?, gender=?, dob=? WHERE id=?");
+    $stmt->bind_param("sssssssi", $name, $email, $phone, $address_user, $cccd, $gender, $dob, $user_id);
+    $stmt->execute();
+
+    // Sau khi cập nhật xong
+    echo "<script>alert('Cập nhật thành công!');</script>";
+
+
+    // Cập nhật lại dữ liệu mới
+    $result = $conn->query("SELECT * FROM users WHERE id=$user_id");
+    $user = $result->fetch_assoc();
+}
 // Truy vấn lấy thông báo chung từ admin
 $notification_result = $conn->query("SELECT * FROM notifications ORDER BY created_at DESC");
 
@@ -211,17 +242,17 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
 </head>
 
 <body>
-<div class="navbar">
+    <div class="navbar">
         <a href="user_home.php">
             <img src="logo.png" alt="" width="50px" style="border-radius: 50%;">
         </a>
         <div class="dropdown">
             <button class="dropdown-toggle">
-                Trang chủ
-                <i class="fas fa-chevron-down">
-                </i>
+                <h3>Trang thông tin tài khoản</h3>
+                <!-- <i class="fas fa-chevron-down">
+                </i> -->
             </button>
-            <div class="dropdown-menu">
+            <!-- <div class="dropdown-menu">
                 <a href="#">Biệt thự</a>
                 <a href="#">
                     Chung cư
@@ -237,7 +268,7 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
                 </a>
                 <a href="#">Nhà 2 tầng</a>
                 <a href="#">Nhà cấp 4</a>
-            </div>
+            </div> -->
         </div>
         <!-- <div class="dropdown">
             <button class="dropdown-toggle">
@@ -258,11 +289,11 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
             </div>
         </div> -->
         <div class="search-bar">
-            <input placeholder="Search..." type="text" />
+            <!-- <input placeholder="Search..." type="text" />
             <button>
                 <i class="fas fa-search">
                 </i>
-            </button>
+            </button> -->
         </div>
         <div class="icons">
             <!-- <div class="icon-wrapper">
@@ -333,7 +364,7 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
     </div>
 
     <div class="container1">
-        <h1>Thông tin cá nhân</h1>
+        <h1> </h1>
     </div>
 
     <div class="container">
@@ -342,55 +373,54 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
                 <ul>
                     <li><a class="ttcn" href="#">Thông tin cá nhân</a></li>
                     <!-- <li><a href="#">Liên kết mạng xã hội</a></li> -->
-                    <li><a href="#">Cài đặt tài khoản</a></li> <!-- đặt lại mật khẩu, quên mật khẩu -->
+                    <li><a href="account_settings.php">Đổi mật khẩu</a></li> <!-- đặt lại mật khẩu, quên mật khẩu -->
                     <!-- <li><a href="#">Quản lý lịch sử đăng nhập</a></li> -->
                 </ul>
             </div>
         </div>
         <div class="content2">
             <div class="main-content">
-                <div class="section-title">Hồ sơ cá nhân</div>
-                <div class="form-group">
-                    <label for="name">Họ và tên (tên tài khoản)* </label>
-                    <div class="input-group">
-                        <input type="text" id="name" value="<?= htmlspecialchars($user['username']) ?>" required>
+                <form method="POST">
+                    <div class="section-title">Hồ sơ cá nhân</div>
+                    <div class="form-group">
+                        <label for="name">Họ và tên (tên tài khoản)* </label>
+                        <div class="input-group">
+                            <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Số điện thoại*</label>
-                    <input type="text" name="phone" id="" value="<?= htmlspecialchars($user['phone']) ?>" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Địa chỉ</label> <!-- address_user -->
-                    <input type="text" id="address_user" name="address_user" value="<?= htmlspecialchars($user['address_user']) ?>">
-                </div>
-                <div class="section-title">Thông tin bảo mật</div>
-                <div class="form-group">
-                    <label for="email">Email*</label>
-                    <div class="input-group">
-                        <input type="email" id="email" value="<?= htmlspecialchars($user['email']) ?>" readonly>
-                        <button class="change-link">Thay đổi</button>
+                    <div class="form-group">
+                        <label for="phone">Số điện thoại*</label>
+                        <input type="text" name="phone" value="<?= htmlspecialchars($user['phone']) ?>">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="id">CCCD / CMND / Hộ chiếu</label>
-                    <input type="text" id="id" value="<?= htmlspecialchars($user['cccd']) ?>">
-                </div>
-                <div class="form-group select-group">
-                    <div>
+                    <div class="form-group">
+                        <label for="address">Địa chỉ</label> <!-- address_user -->
+                        <input type="text" name="address_user" value="<?= htmlspecialchars($user['address_user']) ?>">
+                    </div>
+                    <div class="section-title">Thông tin bảo mật</div>
+                    <div class="form-group">
+                        <label for="email">Email*</label>
+                        <div class="input-group">
+                            <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id">CCCD / CMND / Hộ chiếu</label>
+                        <input type="text" name="cccd" value="<?= htmlspecialchars($user['cccd']) ?>">
+                    </div>
+                    <div class="form-group">
                         <label for="gender">Giới tính</label>
-                        <select id="gender">
+                        <select name="gender">
                             <option value="male" <?= $user['gender'] == 'male' ? 'selected' : '' ?>>Nam</option>
                             <option value="female" <?= $user['gender'] == 'female' ? 'selected' : '' ?>>Nữ</option>
                             <option value="other" <?= $user['gender'] == 'other' ? 'selected' : '' ?>>Khác</option>
                         </select>
+                        <div>
+                            <label for="dob">Ngày, tháng, năm sinh</label>
+                            <input type="date" id="dob" name="dob" value="<?= htmlspecialchars($user['dob']) ?>">
+                        </div>
                     </div>
-                    <div>
-                        <label for="dob">Ngày, tháng, năm sinh</label>
-                        <input type="date" id="dob" name="dob" value="<?= htmlspecialchars($user['dob']) ?>">
-                    </div>
-                </div>
-                <button class="btn-save">LƯU THAY ĐỔI</button>
+                    <button class="btn-save" type="submit">LƯU THAY ĐỔI</button>
+                </form>
             </div>
         </div>
     </div>
@@ -460,5 +490,27 @@ $notification_result = $conn->query("SELECT * FROM notifications ORDER BY create
         // })
     </script>
 </body>
+<footer style="background-color: #f44336; color: white; text-align: center; padding: 20px 0;">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <!-- Logo và tiêu đề -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
+            <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
+            <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
+            <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
+            <div><i class="fas fa-phone"></i> 0945678321</div>
+        </div>
+
+        <!-- Đường kẻ ngang -->
+        <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
+
+        <!-- Khẩu hiệu -->
+        <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
+    </div>
+</footer>
 
 </html>
