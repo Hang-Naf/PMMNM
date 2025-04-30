@@ -619,7 +619,82 @@ $house = $result->fetch_assoc();
         </div>
     </div>
 </body>
+<footer style="background-color: #f44336; color: white; text-align: center; padding: 20px 0;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <!-- Logo và tiêu đề -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
+      <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+    </div>
+
+    <!-- Thông tin liên hệ -->
+    <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
+      <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
+      <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
+      <div><i class="fas fa-phone"></i> 0945678321</div>
+    </div>
+
+    <!-- Đường kẻ ngang -->
+    <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
+
+    <!-- Khẩu hiệu -->
+    <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
+  </div>
+</footer>
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+
+        const icons = [{
+                icon: "bell-icon",
+                menu: "bell-menu"
+            },
+            {
+                icon: "chat-icon",
+                menu: "chat-menu"
+            },
+            {
+                icon: "maintenance-icon",
+                menu: "maintenance-menu"
+            },
+            {
+                icon: "user-icon",
+                menu: "user-menu"
+            }
+        ];
+
+
+        icons.forEach(({
+            icon,
+            menu
+        }) => {
+            const iconElement = document.getElementById(icon);
+            const menuElement = document.getElementById(menu);
+
+            iconElement.addEventListener("click", function(event) {
+                event.stopPropagation();
+                closeAllMenus(); // Đóng tất cả menu trước khi mở cái mới
+                menuElement.classList.toggle("dropdown-active");
+                iconElement.classList.toggle("icon-active"); // Đổi màu icon
+            });
+        });
+
+        // Đóng menu khi click ra ngoài
+        document.addEventListener("click", function(event) {
+            if (!event.target.closest(".icon-wrapper")) {
+                closeAllMenus();
+            }
+        });
+
+        function closeAllMenus() {
+            document.querySelectorAll(".dropdown-menu").forEach(menu => {
+                menu.classList.remove("dropdown-active");
+            });
+            document.querySelectorAll(".icons i").forEach(icon => {
+                icon.classList.remove("icon-active"); // Reset màu icon
+            });
+        }
+    });
     $(document).ready(function() {
         $('#booking-form').submit(function(e) {
             e.preventDefault();
