@@ -89,10 +89,10 @@ $result = $conn->query($sql);
         <div class="dropdown">
             <button class="dropdown-toggle">
                 Trang chủ
-                <i class="fas fa-chevron-down">
-                </i>
+                <!-- <i class="fas fa-chevron-down">
+                </i> -->
             </button>
-            <div class="dropdown-menu">
+            <!-- <div class="dropdown-menu">
                 <a href="#">Biệt thự</a>
                 <a href="#">
                     Chung cư
@@ -108,7 +108,7 @@ $result = $conn->query($sql);
                 </a>
                 <a href="#">Nhà 2 tầng</a>
                 <a href="#">Nhà cấp 4</a>
-            </div>
+            </div> -->
         </div>
         <!-- <div class="dropdown">
             <button class="dropdown-toggle">
@@ -359,6 +359,28 @@ $result = $conn->query($sql);
         });
     </script>
 </body>
+<footer style="background-color: #f44336; color: white; text-align: center; padding: 20px 0;">
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <!-- Logo và tiêu đề -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
+      <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+    </div>
+
+    <!-- Thông tin liên hệ -->
+    <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
+      <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
+      <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
+      <div><i class="fas fa-phone"></i> 0945678321</div>
+    </div>
+
+    <!-- Đường kẻ ngang -->
+    <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
+
+    <!-- Khẩu hiệu -->
+    <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
+  </div>
+</footer>
 
 
 </html>
