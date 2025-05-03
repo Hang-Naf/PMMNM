@@ -32,7 +32,7 @@
                             ?>
                             <tr>
                                 <td><?php echo $i++; ?></td>
-                                <td><?php echo $row['tenant_name']; ?></td>
+                                <td><?php echo $row['name']; ?></td>
                                 <td><?php echo $row['phone']; ?></td>
                                 <td><?php echo date('d-m-Y', strtotime($row['date_in'])); ?></td>
                                 <td><?php echo date('H:i', strtotime($row['time_in'])); ?></td>
