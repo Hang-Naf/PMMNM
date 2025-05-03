@@ -1,26 +1,70 @@
 <html lang="en">
 <?php
+session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "house_rental_db";
 
-// Kết nối CSDL
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
 
+// Lấy ID người dùng từ session
+if (isset($_SESSION['login_id'])) {
+    $user_id = $_SESSION['login_id'];
+
+    // Truy vấn thông tin người dùng
+    $sql = "SELECT * FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();  // ✅ Gán vào biến $user
+    } else {
+        echo "Không tìm thấy người dùng.";
+        exit;
+    }
+} else {
+    echo "Bạn chưa đăng nhập.";
+    exit;
+}
+
 // Truy vấn lấy thông báo chung từ admin
 $notification_result = $conn->query("SELECT * FROM notifications ORDER BY created_at DESC");
+$user_id = $_SESSION['login_id'];
+$notification_result = $conn->query("
+    SELECT * FROM notifications 
+    WHERE (user_id IS NULL OR user_id = $user_id) 
+    AND (type IS NULL OR type NOT IN ('user_to_admin'))
+    ORDER BY created_at DESC
+");
 
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
-// Truy vấn danh sách nhà
-$sql = "SELECT h.id, h.house_no, h.description, h.price, h.address, h.image, h.created_at, c.name as category 
-         FROM houses h 
-         JOIN categories c ON h.category_id = c.id 
-         ORDER BY h.id DESC";
-$result = $conn->query($sql);
+$search = isset($_POST['search']) ? $_POST['search'] : '';
+$houses_result = null;
+
+if (!empty($search)) {
+    $sql_search = "SELECT h.id, h.house_no, h.description, h.price, h.address, h.image, h.created_at, c.name as category 
+                   FROM houses h 
+                   JOIN categories c ON h.category_id = c.id
+                   WHERE h.house_no LIKE ? OR h.description LIKE ? OR h.address LIKE ?
+                   ORDER BY h.id DESC";
+    $stmt = $conn->prepare($sql_search);
+    $searchTerm = "%$search%";
+    $stmt->bind_param("sss", $searchTerm, $searchTerm, $searchTerm);
+    $stmt->execute();
+    $houses_result = $stmt->get_result();
+    $stmt->close();
+} else {
+    $sql = "SELECT h.id, h.house_no, h.description, h.price, h.address, h.image, h.created_at, c.name as category 
+            FROM houses h 
+            JOIN categories c ON h.category_id = c.id 
+            ORDER BY h.id DESC";
+    $houses_result = $conn->query($sql);
+}
 ?>
 
 <head>
@@ -75,10 +119,6 @@ $result = $conn->query($sql);
             white-space: nowrap;
         }
     </style>
-
-
-
-
 </head>
 
 <body>
@@ -128,22 +168,13 @@ $result = $conn->query($sql);
                 </a>
             </div>
         </div> -->
-        <div class="search-bar">
-            <input placeholder="Search..." type="text" />
-            <button>
-                <i class="fas fa-search">
-                </i>
-            </button>
-        </div>
-        <div class="icons">
-            <!-- <div class="icon-wrapper">
-                <i class="fas fa-bell" id="bell-icon"></i>
-                <div class="dropdown-menu" id="bell-menu">
-                    <p>Thông báo của bạn</p>
-                    <a href="#">Xem tất cả</a>
-                </div>
-            </div> -->
+        <form method="post" id="search-form" class="search-bar">
+            <input type="text" name="search" placeholder="Tìm kiếm..." value="<?php echo htmlspecialchars($search); ?>" />
+            <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
 
+        </form>
+        <div class="icons">
             <div class="icon-wrapper">
                 <i class="fas fa-bell" id="bell-icon"></i>
                 <div class="dropdown-menu" id="bell-menu">
@@ -196,85 +227,31 @@ $result = $conn->query($sql);
 
 
         </div>
-
-
         <button class="post-button" onclick="window.location.href='user_addhouse.php'">
             ĐĂNG TIN
         </button>
     </div>
     <div class="main-content">
-        <!-- <div class="section">
-            <div class="card">
-                <img alt="Mua bán icon" height="50" src="https://storage.googleapis.com/a1aa/image/2Zl3uGbEg4HzYGuM4VMTdUm5kgyxonC_TqOgZloNGq8.jpg" width="50" />
-                <h3>
-                    Mua bán
-                </h3>
-                <p>
-                    133.293 tin đăng mua bán
-                </p>
-            </div>
-            <div class="card">
-                <img alt="Cho thuê icon" height="50" src="https://storage.googleapis.com/a1aa/image/TVcA4dQc7m9i_4cnjGsEiKpyxD4Cw47dPnSxQZVNUNg.jpg" width="50" />
-                <h3>
-                    Cho thuê
-                </h3>
-                <p>
-                    112.954 tin đăng cho thuê
-                </p>
-            </div>
-            <div class="card">
-                <img alt="Dự án icon" height="50" src="https://storage.googleapis.com/a1aa/image/9c7s0t01O1WK4bnTLwveWsqVm_0Tcljo3RmB4kGbFPM.jpg" width="50" />
-                <h3>
-                    Dự án
-                </h3>
-                <p>
-                    4.167 dự án
-                </p>
-            </div>
-            <div class="card">
-                <img alt="Môi giới icon" height="50" src="https://storage.googleapis.com/a1aa/image/lJoRimLDPUST30N4nOAMiMICYlePFozres7kJChzE5Y.jpg" width="50" />
-                <h3>
-                    Môi giới
-                </h3>
-                <p>
-                    143 chuyên trang
-                </p>
-            </div>
+        <div id="search-results">
+            <!-- Kết quả sẽ hiển thị tại đây -->
         </div>
-        <div class="services">
-            <div class="service-card">
-                <img alt="Gói Pro" height="100" src="https://storage.googleapis.com/a1aa/image/YSKMlMrBIy29mS8N2aB9AXJ0_YsC4gpqnPa8IDR2YkI.jpg" width="300" />
-                <h4>
-                    AAAAAAAAAAAAAAAA
-                </h4>
-            </div>
-            <div class="service-card">
-                <img alt="Tài khoản doanh nghiệp" height="100" src="https://storage.googleapis.com/a1aa/image/B9tYSUqMuHpEhroCapqmoylcik8vSLVYnA9y9dZ7O2A.jpg" width="300" />
-                <h4>
-                    BBBBBBBBBBBBBBBBB
-                </h4>
-            </div>
-            <div class="service-card">
-                <img alt="Chuyên trang môi giới" height="100" src="https://storage.googleapis.com/a1aa/image/hsNS5EDQZC3U2Qp7NgWK-b6WSJpkZb5_RhDnSrKGVdI.jpg" width="300" />
-                <h4>
-                    CCCCCCCCCCCCCCCC
-                    <span class="new-badge">
-                        Mới
-                    </span>
-                </h4>
-            </div>
-        </div>
-        <div class="view-all">
-            <a href="#">
-                Xem tất cả
-            </a>
-        </div> -->
     </div>
     <div class="content">
-        <div class="main">
-            <h2>Cho thuê Bất động sản</h2>
-            <div class="listing">
-                <?php while ($row = $result->fetch_assoc()) { ?>
+    <div class="main">
+        <h2>
+            <?php
+                if (!empty($search)) {
+                    echo "Kết quả tìm kiếm cho: <em>" . htmlspecialchars($search) . "</em>";
+                } else {
+                    echo "Cho thuê Bất động sản";
+                }
+            ?>
+        </h2>
+
+        <div class="listing">
+            <?php
+            if ($houses_result && $houses_result->num_rows > 0) {
+                while ($row = $houses_result->fetch_assoc()) { ?>
                     <div class="item" data-id="<?php echo $row['id']; ?>">
                         <img src="<?php echo htmlspecialchars($row['image']); ?>" alt="Hình ảnh nhà" onerror="this.src='default.jpg';">
                         <div class="details">
@@ -282,16 +259,19 @@ $result = $conn->query($sql);
                             <div class="price">Giá: <?php echo number_format($row['price']); ?> VNĐ/tháng</div>
                             <div class="location">Loại: <?php echo htmlspecialchars($row['category']); ?></div>
                             <div class="description">Mô tả: <?php echo htmlspecialchars($row['description']); ?></div>
-                            <div class="address">
-                                Địa chỉ: <?php echo isset($row['address']) ? htmlspecialchars($row['address']) : "Chưa cập nhật"; ?>
-                            </div>
-                            <div class="created_at">Đăng lúc: <?php echo htmlspecialchars($row['created_at']); ?> </div>
+                            <div class="address">Địa chỉ: <?php echo htmlspecialchars($row['address']); ?></div>
+                            <div class="created_at">Đăng lúc: <?php echo htmlspecialchars($row['created_at']); ?></div>
                         </div>
                     </div>
-                <?php } ?>
-            </div>
+                <?php }
+            } else {
+                echo "<p>Không tìm thấy bất động sản nào.</p>";
+            }
+            ?>
         </div>
     </div>
+</div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll(".item").forEach(function(element) {
@@ -303,7 +283,6 @@ $result = $conn->query($sql);
                 });
             });
         });
-
         document.addEventListener("DOMContentLoaded", function() {
 
 
@@ -360,27 +339,26 @@ $result = $conn->query($sql);
     </script>
 </body>
 <footer style="background-color: #f44336; color: white; text-align: center; padding: 20px 0;">
-  <div style="display: flex; flex-direction: column; align-items: center;">
-    <!-- Logo và tiêu đề -->
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
-      <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <!-- Logo và tiêu đề -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
+            <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
+            <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
+            <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
+            <div><i class="fas fa-phone"></i> 0945678321</div>
+        </div>
+
+        <!-- Đường kẻ ngang -->
+        <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
+
+        <!-- Khẩu hiệu -->
+        <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
     </div>
-
-    <!-- Thông tin liên hệ -->
-    <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
-      <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
-      <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
-      <div><i class="fas fa-phone"></i> 0945678321</div>
-    </div>
-
-    <!-- Đường kẻ ngang -->
-    <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
-
-    <!-- Khẩu hiệu -->
-    <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
-  </div>
 </footer>
-
 
 </html>
