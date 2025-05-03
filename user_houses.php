@@ -1,5 +1,6 @@
 <html>
 <?php
+session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -10,7 +11,27 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
+// Lấy ID người dùng từ session
+if (isset($_SESSION['login_id'])) {
+    $user_id = $_SESSION['login_id'];
 
+    // Truy vấn thông tin người dùng
+    $sql = "SELECT * FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();  // ✅ Gán vào biến $user
+    } else {
+        echo "Không tìm thấy người dùng.";
+        exit;
+    }
+} else {
+    echo "Bạn chưa đăng nhập.";
+    exit;
+}
 // Lấy ID nhà từ URL
 $house_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -42,6 +63,9 @@ $house = $result->fetch_assoc();
     <title>
         Real Estate Listing
     </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet" />
     <style>
@@ -55,7 +79,7 @@ $house = $result->fetch_assoc();
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 20px 100px 20px;
             background-color: #fff;
         }
 
@@ -338,7 +362,7 @@ $house = $result->fetch_assoc();
                 <img src="logo.png" alt="" width="50px" style="border-radius: 50%;">
             </a>
             <div class="dropdown">
-                <button class="dropdown-toggle">
+                <!-- <button class="dropdown-toggle">
                     Trang chủ
                     <i class="fas fa-chevron-down">
                     </i>
@@ -359,42 +383,35 @@ $house = $result->fetch_assoc();
                     </a>
                     <a href="#">Nhà 2 tầng</a>
                     <a href="#">Nhà cấp 4</a>
-                </div>
+                </div> -->
             </div>
-            <!-- <div class="dropdown">
-            <button class="dropdown-toggle">
-                Bất động sản
-                <i class="fas fa-chevron-down">
-                </i>
-            </button>
-            <div class="dropdown-menu">
-                <a href="#">
-                    Option 1
-                </a>
-                <a href="#">
-                    Option 2
-                </a>
-                <a href="#">
-                    Option 3
-                </a>
+            <div class="dropdown">
+                <!-- <button class="dropdown-toggle">
+                    Bất động sản
+                    <i class="fas fa-chevron-down">
+                    </i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#">
+                        Option 1
+                    </a>
+                    <a href="#">
+                        Option 2
+                    </a>
+                    <a href="#">
+                        Option 3
+                    </a>
+                </div> -->
             </div>
-        </div> -->
             <div class="search-bar">
-                <input placeholder="Search..." type="text" />
+                <!-- <input placeholder="Search..." type="text" />
                 <button>
                     <i class="fas fa-search">
                     </i>
-                </button>
+                </button> -->
+                <h4>Chi tiết BĐS</h4>
             </div>
             <div class="icons">
-                <!-- <div class="icon-wrapper">
-                <i class="fas fa-bell" id="bell-icon"></i>
-                <div class="dropdown-menu" id="bell-menu">
-                    <p>Thông báo của bạn</p>
-                    <a href="#">Xem tất cả</a>
-                </div>
-            </div> -->
-
                 <div class="icon-wrapper">
                     <i class="fas fa-bell" id="bell-icon"></i>
                     <div class="dropdown-menu" id="bell-menu">
@@ -425,11 +442,6 @@ $house = $result->fetch_assoc();
                         <a href="reviews.php">Xem tất cả</a>
                     </div>
                 </div>
-
-                <!-- <div class="icon-wrapper">
-                <i class="fas fa-tools" id="maintenance-icon" onclick="window.location.href='maintenance_user.php'"></i>
-            </div> -->
-
                 <div class="icon-wrapper">
                     <i class="fas fa-user" id="user-icon"></i>
                     <div class="dropdown-menu" id="user-menu">
@@ -457,13 +469,6 @@ $house = $result->fetch_assoc();
             <div class="left">
                 <div class="image-gallery">
                     <img alt="Main image of the property" height="400" src="<?php echo htmlspecialchars($house['image']); ?>" width="600" />
-                    <!-- <div class="thumbnails">
-                        <img alt="Thumbnail 1" height="100" src="https://storage.googleapis.com/a1aa/image/-yCQQNJ7JQV-cHxr6jM7Jmp5Ns4AYB1pa_JCzommPm0.jpg" width="100" />
-                        <img alt="Thumbnail 2" height="100" src="https://storage.googleapis.com/a1aa/image/oh77uIFMcLFHp1mDc5c30_d5M8r5TPIZY9P4BAS2zVg.jpg" width="100" />
-                        <img alt="Thumbnail 3" height="100" src="https://storage.googleapis.com/a1aa/image/q1xYTo8p0VrkbPSVhQtrRJs5bf11Jjv5x6risn9kbAk.jpg" width="100" />
-                        <img alt="Thumbnail 4" height="100" src="https://storage.googleapis.com/a1aa/image/pUa2ML-en1kcQMW9fWKRp4Bpwd5_G7rhFG9C9MkwO3w.jpg" width="100" />
-                        <img alt="Thumbnail 5" height="100" src="https://storage.googleapis.com/a1aa/image/twrpq9hbQeeSxUHeEcvBHrKHb6cMFl1ttqP_VwpGdc4.jpg" width="100" />
-                    </div> -->
                 </div>
                 <div class="details">
                     <h1><?php echo htmlspecialchars($house['house_no']); ?></h1>
@@ -524,20 +529,17 @@ $house = $result->fetch_assoc();
                         <i class="fas fa-user">
                         </i>
                         <span>
-                            Bình Minh
+                            ADMIN
                         </span>
                     </div>
                     <div class="contact-info">
                         <i class="fas fa-phone">
                         </i>
                         <span>
-                            091822 ***
+                            0912345678
                         </span>
                     </div>
                     <div class="contact-form">
-                        <!-- <input placeholder="Họ và tên" type="text" />
-                        <input placeholder="Số điện thoại" type="text" />
-                        <textarea placeholder="Thêm lời nhắn (100 kí tự)"></textarea> -->
                         <button type="button" class="btn btn-warning w-100 mt-2" data-bs-toggle="modal" data-bs-target="#bookingModal">
                             Đặt lịch hẹn xem nhà
                         </button>
@@ -550,7 +552,8 @@ $house = $result->fetch_assoc();
     <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="booking-form">
+                <form id="booking-form" method="POST">
+                    <input type="hidden" name="house_id" value="<?= htmlspecialchars($house_id) ?>">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="bookingModalLabel">Đặt lịch hẹn xem nhà</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -558,19 +561,19 @@ $house = $result->fetch_assoc();
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Họ và tên</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user['name']) ?>" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Số điện thoại</label>
-                            <input type="text" name="phone" class="form-control" required>
+                            <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone']) ?>" readonly>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Ngày xem nhà</label>
-                            <input type="date" name="date" class="form-control" required>
+                            <input type="date" name="date_in" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Giờ xem nhà</label>
-                            <input type="time" name="time" class="form-control" required>
+                            <input type="time" name="time_in" class="form-control" required>
                         </div>
                         <!-- Chọn địa điểm & loại nhà -->
                         <div class="mb-3">
@@ -593,17 +596,17 @@ $house = $result->fetch_assoc();
                         <div class="mb-3">
                             <label class="form-label">Loại nhà</label>
                             <select name="house_type" class="form-select" required>
-                                <option>Chung cư</option>
-                                <option>Nhà nguyên căn</option>
-                                <option>Biệt thự</option>
+                                <option value="Chung cư">Chung cư</option>
+                                <option value="Nhà nguyên căn">Nhà nguyên căn</option>
+                                <option value="Biệt thự">Biệt thự</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Khoảng giá</label>
                             <select name="price_range" class="form-select" required>
-                                <option>Dưới 1 tỷ</option>
-                                <option>1 - 2 tỷ</option>
-                                <option>5 - 10 tỷ</option>
+                                <option value="Dưới 1 tỷ">Dưới 1 tỷ</option>
+                                <option value="1 - 2 tỷ">1 - 2 tỷ</option>
+                                <option value="5 - 10 tỷ">5 - 10 tỷ</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -611,6 +614,9 @@ $house = $result->fetch_assoc();
                             <textarea name="note" class="form-control" placeholder="Yêu cầu đặc biệt (nếu có)"></textarea>
                         </div>
                     </div>
+                    <!-- Trường ẩn để gửi house_id -->
+                    <input type="hidden" name="house_id" value="<?php echo $house_id; ?>">
+
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success w-100">Xác nhận đặt lịch</button>
                     </div>
@@ -620,26 +626,26 @@ $house = $result->fetch_assoc();
     </div>
 </body>
 <footer style="background-color: #f44336; color: white; text-align: center; padding: 20px 0;">
-  <div style="display: flex; flex-direction: column; align-items: center;">
-    <!-- Logo và tiêu đề -->
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
-      <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <!-- Logo và tiêu đề -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 50%;">
+            <h2 style="color: #ccff00; margin: 0;">HỆ THỐNG CHO THUÊ NHÀ TRỰC TUYẾN</h2>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
+            <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
+            <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
+            <div><i class="fas fa-phone"></i> 0945678321</div>
+        </div>
+
+        <!-- Đường kẻ ngang -->
+        <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
+
+        <!-- Khẩu hiệu -->
+        <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
     </div>
-
-    <!-- Thông tin liên hệ -->
-    <div style="margin-top: 15px; display: flex; gap: 30px; align-items: center;">
-      <div><i class="fas fa-map-marker-alt"></i> Dịch Vọng Hậu, Cầu Giấy, Hà Nội</div>
-      <div><i class="fas fa-envelope"></i> admin@gmail.com</div>
-      <div><i class="fas fa-phone"></i> 0945678321</div>
-    </div>
-
-    <!-- Đường kẻ ngang -->
-    <hr style="width: 80%; margin: 20px auto; border-top: 1px solid #ccc;" />
-
-    <!-- Khẩu hiệu -->
-    <div style="color: #ffeb3b; font-weight: bold;">ĐỘC LẬP - TỰ DO - HẠNH PHÚC</div>
-  </div>
 </footer>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -712,9 +718,11 @@ $house = $result->fetch_assoc();
                         alert("❌ " + res.message);
                     }
                 },
-                error: function() {
-                    alert("❌ Gửi dữ liệu thất bại!");
+                error: function(xhr, status, error) {
+                    console.error("Lỗi AJAX:", xhr.responseText);
+                    alert("❌ Gửi dữ liệu thất bại!\n Chi tiết lỗi: " + xhr.responseText);
                 }
+
             });
         });
     });
